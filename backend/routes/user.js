@@ -1,22 +1,26 @@
 // backend/routes/user.js
-const express = require('express');
-const User = require('../models/user');
+const express = require("express");
+const User = require("../models/user");
 const router = express.Router();
+const bcrypt = require('bcrypt');
 
 // POST API for User Registration
-router.post('/register', async (req, res) => {
+router.post("/register", async (req, res) => {
   const { username, email, password, confirmPassword } = req.body;
 
   if (password !== confirmPassword) {
-    return res.status(400).send('Passwords do not match');
+    return res.status(400).send("Passwords do not match");
   }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
 
   const newUser = new User({
     username,
     email,
-    password,
+    password: hashedPassword,
     activeStatus: true,
-    lastSeen: new Date()
+    lastSeen: new Date(),
   });
 
   try {
@@ -25,12 +29,35 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     if (error.code === 11000) {
       // Duplicate key error
-      return res.status(400).send('Username or email already exists');
+      return res.status(400).send("Username or email already exists");
     }
-    console.error(error); // Log any other errors
-    res.status(400).send('Error registering user');
+    res.status(400).send("Error registering user");
   }
-  
+});
+
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Not valid User, please register" });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ message: "Not valid User, please register" });
+    }
+
+    return res.status(200).json({ message: "Login successful" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
 });
 
 module.exports = router;
