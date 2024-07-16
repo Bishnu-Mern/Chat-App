@@ -125,7 +125,7 @@ const RegisterPage: React.FC<{
           Already have an account ? Then{" "}
           <a
             className="hover:text-white cursor-pointer text-blue-600 underline font-medium"
-            onClick={() => setIsRegister(false)}
+            onClick={() => setIsRegister(true)}
           >
             Login
           </a>

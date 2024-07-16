@@ -9,7 +9,7 @@ import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
 
 const Dashboard: React.FC = () => {
-  const [isRegister, setIsRegister] = useState(false);
+  const [isAlreadyRegister, setIsAlreadyRegister] = useState(false);
   return (
     <div className="dashboard-page flex flex-col h-screen">
       <div className="flex justify-between h-12 px-16 pt-16 items-center">
@@ -26,7 +26,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
-      {isRegister ? <LoginPage setIsRegister={setIsRegister}/> : <RegisterPage setIsRegister={setIsRegister}/>}
+      {isAlreadyRegister ? <LoginPage setIsRegister={setIsAlreadyRegister}/> : <RegisterPage setIsRegister={setIsAlreadyRegister}/>}
     </div>
   );
 };
