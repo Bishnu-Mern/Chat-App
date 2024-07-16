@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { Dispatch, useState, SetStateAction } from "react";
 import { useNavigate } from 'react-router-dom';
 import { LOGIN_TITLE } from "../config/dashboardConfig";
@@ -6,8 +7,8 @@ const LoginPage: React.FC<{setIsRegister: Dispatch<SetStateAction<boolean>>}> = 
   const {setIsRegister} = props
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    input1: "",
-    input2: "",
+    email: "",
+    password: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,10 +19,17 @@ const LoginPage: React.FC<{setIsRegister: Dispatch<SetStateAction<boolean>>}> = 
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
-    // Handle form submission logic here
+    try {
+      const res = await axios.post('http://localhost:3001/api/login', formData);
+      if (res.status === 200){
+        navigate('/chatPage')
+      }
+    } catch (error) {
+      console.warn(error)
+    }
   };
 
   return (
@@ -34,10 +42,10 @@ const LoginPage: React.FC<{setIsRegister: Dispatch<SetStateAction<boolean>>}> = 
         <div>
           <input
             type="text"
-            id="input1"
-            name="input1"
+            id="email"
+            name="email"
             placeholder="Enter your email address"
-            value={formData.input1}
+            value={formData.email}
             onChange={handleChange}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-3 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
@@ -45,9 +53,9 @@ const LoginPage: React.FC<{setIsRegister: Dispatch<SetStateAction<boolean>>}> = 
         <div>
           <input
             type="text"
-            id="input2"
-            name="input2"
-            value={formData.input2}
+            id="password"
+            name="password"
+            value={formData.password}
             placeholder="Password"
             onChange={handleChange}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-3 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -56,7 +64,7 @@ const LoginPage: React.FC<{setIsRegister: Dispatch<SetStateAction<boolean>>}> = 
         <div>
           <button
             type="submit"
-            onClick={()=> navigate('/chatPage')          }
+            onClick={()=> handleSubmit}
             className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Sign In
