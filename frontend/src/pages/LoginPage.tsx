@@ -1,11 +1,15 @@
 import axios from "axios";
 import React, { Dispatch, useState, SetStateAction } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { LOGIN_TITLE } from "../config/dashboardConfig";
+import { useNotification } from "../contexts/NotificationContext";
 
-const LoginPage: React.FC<{setIsRegister: Dispatch<SetStateAction<boolean>>}> = (props:any) => {
-  const {setIsRegister} = props
+const LoginPage: React.FC<{
+  setIsRegister: Dispatch<SetStateAction<boolean>>;
+}> = (props: any) => {
+  const { setIsRegister } = props;
   const navigate = useNavigate();
+  const { setNotification } = useNotification();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -19,16 +23,20 @@ const LoginPage: React.FC<{setIsRegister: Dispatch<SetStateAction<boolean>>}> = 
     }));
   };
 
-  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
     try {
-      const res = await axios.post('http://localhost:3001/api/login', formData);
-      if (res.status === 200){
-        navigate('/chatPage')
-      }
+      const res = await axios.post("http://localhost:3001/api/login", formData);
+      setNotification({ type: 'success', message: res.data.message });
+      navigate("/chatPage");
     } catch (error) {
-      console.warn(error)
+      if (axios.isAxiosError(error) && error.response) {
+        setNotification({ type: 'error', message: error.response.data.message });
+      } else {
+        setNotification({ type: 'error', message: 'Server error' });
+
+      }
     }
   };
 
@@ -64,7 +72,7 @@ const LoginPage: React.FC<{setIsRegister: Dispatch<SetStateAction<boolean>>}> = 
         <div>
           <button
             type="submit"
-            onClick={()=> handleSubmit}
+            onClick={() => handleSubmit}
             className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Sign In
